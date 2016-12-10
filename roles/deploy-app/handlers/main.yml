@@ -1,0 +1,10 @@
+---
+# Defines handlers
+
+- name: start dnd_helper
+  become: true
+  service: name=dnd_helper state=started
+
+- name: restart dnd_helper
+  become: true
+  service: name=dnd_helper state=restarted

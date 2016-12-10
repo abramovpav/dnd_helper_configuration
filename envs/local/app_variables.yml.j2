@@ -1,0 +1,5 @@
+---
+HOST_NAME: "0.0.0.0:8000"
+APPLICATION_URL: "http://{{ host_name }}"
+S3_BUCKET: "flask-storage-test"
+DATABASE_URI: "mysql://root:{{mysql_root_pass}}@localhost:3306/{{ app_db_name }}"

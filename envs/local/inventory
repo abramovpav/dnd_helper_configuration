@@ -1,0 +1,14 @@
+[local]
+192.168.33.33
+
+[all:vars]
+env=local
+env_root=envs/{{env}}
+ansible_ssh_private_key_file=~/.vagrant.d/insecure_private_key
+ansible_ssh_user=vagrant
+ansible_ssh_pass=vagrant
+default_user=vagrant
+default_group=vagrant
+app_user=vagrant
+host_name={{inventory_hostname}}
+

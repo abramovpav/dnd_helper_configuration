@@ -1,0 +1,22 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+hosts = {
+  "dnd-helper-dev" => "192.168.33.33"
+}
+
+Vagrant.configure("2") do |config|
+  hosts.each do |name, ip|
+    config.vm.define name do |machine|
+      machine.vm.box = "ubuntu/trusty64"
+      machine.vm.synced_folder "/home/abramau/workspace/dnd_helper", "/mnt/projects/dnd_helper"
+      #machine.vm.hostname = "%s.example.org" % name
+      machine.vm.network :private_network, ip: ip
+      config.vm.network :forwarded_port, host: 8001, guest: 8000
+      machine.vm.provider "virtualbox" do |v|
+          v.name = name
+          v.memory = 1024
+      end
+    end
+  end
+end

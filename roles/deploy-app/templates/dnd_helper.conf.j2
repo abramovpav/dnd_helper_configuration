@@ -1,0 +1,12 @@
+#jinja2: trim_blocks:False
+description "uWSGI server instance configured to serve dnd_helper"
+start on runlevel [2345]
+stop on runlevel [!2345]
+
+setuid {{ app_user }}
+setgid www-data
+
+env PATH={{ virtualenv_path }}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+chdir {{ project_root }}
+{#exec uwsgi --ini dnd_helper.ini --logto /tmp/dnd_helper.log#}
+exec {{ virtualenv_path }}/bin/python {{ project_root }}/manage.py runserver 0.0.0.0:8000

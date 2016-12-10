@@ -1,0 +1,23 @@
+---
+app_name: dnd_helper
+
+app_user_group: "{{ app_user }}"
+
+flask_github_repository: git@github.com:abramovpav/dnd_helper.git
+github_certificate_name: dnd_helper.github
+github_certificate_local_path: "{{ env_root }}/certificates/{{ github_certificate_name }}"
+
+github_certificate_path: "/home/{{ app_user }}/.ssh/{{github_certificate_name}}"
+
+virtualenv_path: "/home/{{app_user}}/venvs/dnd_helper"
+
+upload_ssl_keys: false
+
+system_apt_packages:
+  - curl
+  - python-all
+  - python-pip
+  - wget
+  - git
+  - libmysqlclient-dev
+  - python-dev

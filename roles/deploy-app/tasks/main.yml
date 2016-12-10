@@ -1,0 +1,50 @@
+---
+
+- name: Check if dnd_helper service already exists
+  stat: path=/etc/init/dnd_helper.conf
+  register: dnd_helper_service
+  tags:
+    - stop_service
+
+- name: Stop dnd_helper service
+  become: true
+  service: name=dnd_helper state=stopped
+  when: dnd_helper_service.stat.exists
+  tags:
+    - stop_service
+
+- name: fetch app project sources
+  git: "repo={{flask_github_repository}} dest={{project_root}} key_file={{github_certificate_path}} force=yes recursive=yes version={{app_branch | default('master')}} accept_hostkey=True"
+  when: "{{vagrant_mode is not defined or not vagrant_mode}}"
+  tags:
+    - git
+
+- name: Install requirements
+  pip:
+    requirements: "{{ project_root }}/requirements.txt"
+    virtualenv: "{{ virtualenv_path }}"
+    virtualenv_python: python2.7
+
+- name: Upload credentials
+  template: "src={{app_variables_source_path}} dest={{ project_root }}/app_variables.yml mode=0440 owner={{app_user}}"
+
+- name: Run migrations
+  command: "{{django_db_migration_command}}"
+  when: "{{ (vagrant_mode is defined and vagrant_mode) or need_db_migration }}"
+  args:
+    chdir: "{{ project_root }}"
+  tags:
+    - mysql
+
+#- name: Create task for Flask server
+#  become: true
+#  template: src=dnd_helper.conf.j2 dest=/etc/init/dnd_helper.conf
+#  when: "{{vagrant_mode is not defined or not vagrant_mode}}"
+#
+#- name: start Flask
+#  become: true
+#  service: name=dnd_helper state=started
+#  when: "{{vagrant_mode is not defined or not vagrant_mode}}"
+#  tags:
+#    - services
+#    - flask

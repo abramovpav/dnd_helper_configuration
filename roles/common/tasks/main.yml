@@ -1,0 +1,75 @@
+---
+
+- debug: msg="System {{ project_root }} and {{ virtualenv_path }}"
+
+- name: Update apt cache
+  become: true
+  apt: update_cache=true
+
+- name: Install system packages
+  apt: pkg={{ item }} state=present
+  become: true
+  with_items: "{{ system_apt_packages }}"
+
+
+- name: uploading github key
+  copy: "src={{github_certificate_local_path}} dest={{github_certificate_path}} mode=0400"
+  when: "{{vagrant_mode is not defined or not vagrant_mode}}"
+  tags:
+    - git
+    - keys
+
+- name: Install the MySQL packages
+  become: true
+  apt: name={{ item }} state=installed update_cache=yes
+  when: "{{vagrant_mode is defined and vagrant_mode}}"
+  with_items:
+    - mysql-server-5.6
+    - mysql-client-5.6
+    - python-mysqldb
+  tags:
+    - mysql
+
+- name: Update MySQL root password for all root accounts
+  mysql_user: name=root host={{ item }} password={{ mysql_root_pass }} login_user=root state=present
+  when: "{{vagrant_mode is defined and vagrant_mode}}"
+  with_items:
+    - "{{ ansible_hostname }}"
+    - 127.0.0.1
+    - ::1
+    - localhost
+  tags:
+    - mysql
+
+- name: Copy mysql's credentials as .my.cnf file
+  when: "{{vagrant_mode is defined and vagrant_mode}}"
+  template: src=mysql.cnf.j2 dest=~/.my.cnf mode=0600
+  tags:
+    - mysql
+
+- name: Ensure Anonymous user(s) are not in the database
+  mysql_user: name='' host={{ item }} state=absent
+  when: "{{vagrant_mode is defined and vagrant_mode}}"
+  with_items:
+    - localhost
+    - "{{ ansible_hostname }}"
+  tags:
+    - mysql
+
+- name: Remove the test database
+  mysql_db: name=test state=absent
+  when: "{{vagrant_mode is defined and vagrant_mode}}"
+  notify:
+    - Restart MySQL
+  tags:
+    - mysql
+
+- name: Add the database
+  when: "{{vagrant_mode is defined and vagrant_mode}}"
+  mysql_db: name={{app_db_name}} state=present
+  tags:
+    - mysql
+
+- name: Install Virtualenv
+  become: true
+  pip: name=virtualenv

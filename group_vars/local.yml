@@ -1,0 +1,16 @@
+---
+project_root: "/mnt/projects/dnd_helper"
+
+vagrant_mode: true
+
+app_branch: dev
+
+app_db_name: dnd_helper
+
+app_variables_source_path: "{{env_root}}/app_variables.yml.j2"
+
+need_db_migration: false
+
+mysql_root_pass: 123258
+
+

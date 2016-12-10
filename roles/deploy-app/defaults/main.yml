@@ -1,0 +1,2 @@
+---
+django_db_migration_command: "{{virtualenv_path}}/bin/python {{project_root}}/manage.py migrate"

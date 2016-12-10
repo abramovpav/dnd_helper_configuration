@@ -1,0 +1,6 @@
+.idea/
+*.retry
+vagrant/.vagrant/
+
+roles/nginx/
+roles/filebeat
